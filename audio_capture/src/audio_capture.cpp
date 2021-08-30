@@ -4,8 +4,7 @@
 #include <boost/thread.hpp>
 
 #include <ros/ros.h>
-
-#include "audio_common_msgs/AudioData.h"
+#include "std_msgs/Int16MultiArray.h"
 #include "audio_common_msgs/AudioInfo.h"
 
 namespace audio_transport
@@ -39,7 +38,7 @@ namespace audio_transport
         std::string device;
         ros::param::param<std::string>("~device", device, "");
 
-        _pub = _nh.advertise<audio_common_msgs::AudioData>("audio", 10, true);
+        _pub = _nh.advertise<std_msgs::Int16MultiArray>("audio", 10, true);
         _pub_info = _nh.advertise<audio_common_msgs::AudioInfo>("audio_info", 1, true);
 
         _loop = g_main_loop_new(NULL, false);
@@ -169,7 +168,7 @@ namespace audio_transport
         exit(code);
       }
 
-      void publish( const audio_common_msgs::AudioData &msg )
+      void msg_publish( const std_msgs::Int16MultiArray &msg )
       {
         _pub.publish(msg);
       }
@@ -184,7 +183,7 @@ namespace audio_transport
 
         GstBuffer *buffer = gst_sample_get_buffer(sample);
 
-        audio_common_msgs::AudioData msg;
+        std_msgs::Int16MultiArray msg;
         gst_buffer_map(buffer, &map, GST_MAP_READ);
         msg.data.resize( map.size );
 
@@ -193,7 +192,7 @@ namespace audio_transport
         gst_buffer_unmap(buffer, &map);
         gst_sample_unref(sample);
 
-        server->publish(msg);
+        server->msg_publish(msg);
 
         return GST_FLOW_OK;
       }
